@@ -8,9 +8,14 @@
 
 import Foundation
 
+protocol WeatherManagerDelegate{
+    func didUpdateWeather(weather: WeatherModel)
+}
+
 struct WeatherManager{
-    var temperaturex = 0.0
     let weatherURL = "https://api.openweathermap.org/data/2.5/weather?&appid=44485b2c2e23c5a4cc4e6ce8f4b734cc&units=metric&"
+    
+    var delegate: WeatherManagerDelegate?
     
     func featchWeather(cityName: String){
         
@@ -31,52 +36,34 @@ struct WeatherManager{
                     print(error!)
                 }
                 if let safeData = data{
-                    parseJSON(weatherData: safeData)
+                    if let weather = parseJSON(weatherData: safeData){
+                         delegate?.didUpdateWeather(weather: weather)
+                    }
                 }
             }
             //4. Start the task
             task.resume()
         }
     }
-    func parseJSON(weatherData: Data){
+    func parseJSON(weatherData: Data)-> WeatherModel?{
         let decoder = JSONDecoder()
         do  {
             let decodedData = try decoder.decode(WeatherData.self, from: weatherData)
-            let temperature = (decodedData.main.temp)
-           // temperaturex = temperature
-            let id = (decodedData.weather[0].id)
-            //print(getConditionName(conditionID: id))
+            let temperature = decodedData.main.temp
+            let id = decodedData.weather[0].id
+            let name = decodedData.name
+            
+            let weather = WeatherModel(conditionID: id, cityName: name, temperature: temperature)
+            return weather
+            
         } catch {
             print(error)
+            return nil
         }
     }
     
-    func getConditionName(conditionID: Int)-> String{
-        switch conditionID {
-                case 200...232:
-                    return "cloud.bolt"
-                case 300...321:
-                    return "cloud.drizzle"
-                case 500...531:
-                    return "cloud.rain"
-                case 600...622:
-                    return "cloud.snow"
-                case 701...781:
-                    return "cloud.fog"
-                case 800:
-                    return "sun.max"
-                case 801...804:
-                    return "cloud.bolt"
-                default:
-                    return "cloud"
-                }
+    
 
-    }
-//    func getTemperature()->String{
-//
-//        return String(temperaturex)
-//
-//    }
 }
 
 
