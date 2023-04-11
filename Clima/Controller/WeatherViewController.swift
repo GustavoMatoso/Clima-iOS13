@@ -22,16 +22,17 @@ class WeatherViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         locationManager.requestWhenInUseAuthorization()
         locationManager.delegate = self
-        
-        
         weatherManager.delegate = self
         searchTextField.delegate = self
         locationManager.requestLocation()
+        
     }
     
+    @IBAction func locationPressed(_ sender: UIButton) {
+        locationManager.requestLocation()
+    }
 }
 //MARK: - UITextFieldDelegate
 
@@ -65,6 +66,7 @@ extension WeatherViewController: UITextFieldDelegate{
         searchTextField.text = ""
         
     }
+    
 }
 
 //MARK: - WeatherManagerDelegate
@@ -90,8 +92,8 @@ extension WeatherViewController: WeatherManagerDelegate{
 extension WeatherViewController: CLLocationManagerDelegate{
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("got location gugigas")
         if let locations = locations.last{
+            locationManager.stopUpdatingLocation()
             let lat = locations.coordinate.latitude
             let lon = locations.coordinate.longitude
             weatherManager.featchWeather(lat: lat, lon: lon)
@@ -100,7 +102,6 @@ extension WeatherViewController: CLLocationManagerDelegate{
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error)
-    }
-    
+    } 
 }
 
