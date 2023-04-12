@@ -21,3 +21,5 @@ struct Weather: Decodable{
     let id: Int
     
 }
+
+
